@@ -44,6 +44,7 @@ def test_app(
                 json={'topic': 'test', 'message': 'test message'},
             )
             assert rv.status_code == 200
+            assert rv.json == {'status': 'ok', 'id': 'wut'}
 
             mocked_file.assert_called_once_with('/opt/foo/wut.log', 'w')
             mocked_file().write.assert_called_once_with("{'message': 'test message', 'topic': 'test'}")
