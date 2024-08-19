@@ -31,13 +31,19 @@ def test_app(
           rv = client.post('/')
           assert rv.status_code == 401
     with mock.patch.dict('os.environ', {
-        'API_KEY': 'test',
-        'FILE_DIR': '/opt/foo',
+        'API_KEY': 'wrong',
     }):
-        with mock.patch('os.path.exists', return_value=True), \
-                mock.patch('os.makedirs'), \
-                mock.patch('builtins.open', mock.mock_open()) as mocked_file, \
-                mock.patch('app.main.routes.uuid4', return_value='wut'):
+        rv = client.post('/')
+        assert rv.status_code == 401
+
+    with mock.patch('os.path.exists', return_value=False), \
+        mock.patch('builtins.open', mock.mock_open()) as mocked_file, \
+        mock.patch('os.makedirs', return_value=False) as make_dirs, \
+        mock.patch('app.main.routes.uuid4', return_value='wut'), \
+        mock.patch.dict('os.environ', {
+                'API_KEY': 'test',
+                'FILE_DIR': '/opt/foo',
+    }):
             rv = client.post(
                 '/',
                 headers={'Authorization': 'Bearer test', 'Content-Type': 'application/json'},
@@ -45,6 +51,7 @@ def test_app(
             )
             assert rv.status_code == 200
             assert rv.json == {'status': 'ok', 'id': 'wut'}
+            make_dirs.assert_called_once_with('/opt/foo')
 
             mocked_file.assert_called_once_with('/opt/foo/wut.log', 'w')
             mocked_file().write.assert_called_once_with("{'message': 'test message', 'topic': 'test'}")
