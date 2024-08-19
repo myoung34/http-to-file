@@ -13,9 +13,10 @@ def main_route():
     """ Main route """
     if request.headers.get('Authorization') == f'Bearer {os.environ.get("API_KEY")}':
         file_dir = os.environ.get('FILE_DIR', '/tmp')
+        file_uuid = str(uuid4())
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)
-        with open(f'{file_dir}/{str(uuid4())}.log', 'w') as file: # pylint:disable=unspecified-encoding
+        with open(f'{file_dir}/{file_uuid}.log', 'w') as file: # pylint:disable=unspecified-encoding
             file.write(str(request.json))
-        return jsonify({'status': 'ok'}), 200
+        return jsonify({'status': 'ok', 'id': file_uuid}), 200
     return jsonify({'status': 'unauthorized'}), 401
