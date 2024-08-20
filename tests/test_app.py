@@ -51,7 +51,17 @@ def test_app(
             )
             assert rv.status_code == 200
             assert rv.json == {'status': 'ok', 'id': 'wut'}
-            make_dirs.assert_called_once_with('/opt/foo')
+            make_dirs.assert_called_with('/opt/foo')
 
-            mocked_file.assert_called_once_with('/opt/foo/wut.log', 'w')
-            mocked_file().write.assert_called_once_with("{'message': 'test message', 'topic': 'test'}")
+            mocked_file.assert_called_with('/opt/foo/wut.log', 'w')
+            mocked_file().write.assert_called_with("{'message': 'test message', 'topic': 'test'}")
+
+            rv_base64 = client.post(
+                '/',
+                headers={'Authorization': 'Bearer test', 'Content-Type': 'application/json'},
+                json={'base64': 'True', 'data': 'dGVzdAphc2RmCg=='},
+            )
+            assert rv_base64.status_code == 200
+            assert rv_base64.json == {'status': 'ok', 'id': 'wut'}
+
+            mocked_file().write.assert_called_with("test\nasdf\n")
