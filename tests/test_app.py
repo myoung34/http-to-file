@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
 import uuid
 from unittest import mock
 
@@ -110,4 +111,20 @@ def test_expel(
         assert rv.json == {'status': 'ok', 'id': 'anyvalue'}
 
         mocked_file.assert_called_with('/tmp/anyvalue.log', 'w')
-        mocked_file().write.assert_called_with(b'{"data": {"stuff": "yup"}, "event_name": "event name", "guid": "1a9c6d7a-78e6-4238-8cd7-8d2ec2492cab", "rule": "a rule name"}')
+        json_data = {
+            "data": {
+                "stuff": "yup"
+            },
+            "event_name": "event name",
+            "guid": "1a9c6d7a-78e6-4238-8cd7-8d2ec2492cab",
+            "rule": "a rule name"
+        }
+
+        # Convert it to a string as it would appear in the file
+        expected_written_content = json.dumps(json_data, indent=4)
+
+        # Capture all the actual write calls
+        actual_written_content = ''.join(call.args[0] for call in mocked_file().write.call_args_list)
+
+        # Assert the actual content matches the expected content
+        assert actual_written_content == expected_written_content

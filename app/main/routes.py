@@ -1,6 +1,7 @@
 """ all routes will end up here or loaded here for flask """
 # pylint:disable=cyclic-import
 import base64
+import json
 import os
 from uuid import uuid4
 
@@ -40,8 +41,13 @@ def expel_route():
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)
 
+        try:
+            json_data = json.loads(request.data.decode('utf-8'))  # Parse JSON data
+        except json.JSONDecodeError:
+            return jsonify({'status': 'invalid json'}), 400
+
         with open(f'{file_dir}/{file_name}.log', 'w') as file:  # pylint:disable=unspecified-encoding
-            # write the raw POST data to a file
-            file.write(request.data)
+            json.dump(json_data, file, indent=4)  # Write formatted JSON to file
+
         return jsonify({'status': 'ok', 'id': file_name}), 200
     return jsonify({'status': 'not found'}), 404
