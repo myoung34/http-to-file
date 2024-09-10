@@ -26,3 +26,20 @@ def main_route():
                 file.write(str(request.json))
         return jsonify({'status': 'ok', 'id': file_uuid}), 200
     return jsonify({'status': 'unauthorized'}), 401
+
+@blueprint.route('/expel', methods=['POST'])
+def expel_route():
+    """ Main route """
+    passthrough_header = os.environ.get('PASSTHROUGH_HEADER', uuid4())
+
+    if request.headers.get(passthrough_header) and request.headers.get('passthrough_header') != '': # pylint:disable=line-too-long
+        file_dir = os.environ.get('FILE_DIR', '/tmp')
+        file_uuid = str(uuid4())
+
+        if not os.path.exists(file_dir):
+            os.makedirs(file_dir)
+
+        with open(f'{file_dir}/{file_uuid}.log', 'w') as file:  # pylint:disable=unspecified-encoding
+            file.write(str(request.json))
+        return jsonify({'status': 'ok', 'id': file_uuid}), 200
+    return jsonify({'status': 'not found'}), 404
