@@ -98,7 +98,7 @@ def test_expel(
             }):
         rv = client.post(
             '/expel',
-            headers={'My-Test-Header': 'any value', 'Content-Type': 'application/json'},
+            headers={'My-Test-Header': 'foo=anyvalue', 'Content-Type': 'application/json'},
             json={
                 'guid': '1a9c6d7a-78e6-4238-8cd7-8d2ec2492cab',
                 'rule': 'a rule name',
@@ -107,7 +107,7 @@ def test_expel(
             },
         )
         assert rv.status_code == 200
-        assert rv.json == {'status': 'ok', 'id': 'asdf'}
+        assert rv.json == {'status': 'ok', 'id': 'anyvalue'}
 
-        mocked_file.assert_called_with('/tmp/asdf.log', 'w')
+        mocked_file.assert_called_with('/tmp/anyvalue.log', 'w')
         mocked_file().write.assert_called_with("{'data': {'stuff': 'yup'}, 'event_name': 'event name', 'guid': '1a9c6d7a-78e6-4238-8cd7-8d2ec2492cab', 'rule': 'a rule name'}")
