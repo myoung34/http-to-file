@@ -110,4 +110,4 @@ def test_expel(
         assert rv.json == {'status': 'ok', 'id': 'anyvalue'}
 
         mocked_file.assert_called_with('/tmp/anyvalue.log', 'w')
-        mocked_file().write.assert_called_with("{'data': {'stuff': 'yup'}, 'event_name': 'event name', 'guid': '1a9c6d7a-78e6-4238-8cd7-8d2ec2492cab', 'rule': 'a rule name'}")
+        mocked_file().write.assert_called_with(b'{"data": {"stuff": "yup"}, "event_name": "event name", "guid": "1a9c6d7a-78e6-4238-8cd7-8d2ec2492cab", "rule": "a rule name"}')

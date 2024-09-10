@@ -41,6 +41,7 @@ def expel_route():
             os.makedirs(file_dir)
 
         with open(f'{file_dir}/{file_name}.log', 'w') as file:  # pylint:disable=unspecified-encoding
-            file.write(str(request.json))
+            # write the raw POST data to a file
+            file.write(request.data)
         return jsonify({'status': 'ok', 'id': file_name}), 200
     return jsonify({'status': 'not found'}), 404
