@@ -1,6 +1,7 @@
 """ all routes will end up here or loaded here for flask """
 # pylint:disable=cyclic-import
 import base64
+import json
 import os
 from uuid import uuid4
 
@@ -26,3 +27,27 @@ def main_route():
                 file.write(str(request.json))
         return jsonify({'status': 'ok', 'id': file_uuid}), 200
     return jsonify({'status': 'unauthorized'}), 401
+
+@blueprint.route('/expel', methods=['POST'])
+def expel_route():
+    """ Main route """
+    passthrough_header = os.environ.get('PASSTHROUGH_HEADER', uuid4())
+    passthrough_delimiter = os.environ.get('PASSTHROUGH_DELIMITER', '=')
+
+    if request.headers.get(passthrough_header) and request.headers.get('passthrough_header') != '': # pylint:disable=line-too-long
+        file_dir = os.environ.get('FILE_DIR', '/tmp')
+        file_name = request.headers.get(passthrough_header).split(passthrough_delimiter)[1]
+
+        if not os.path.exists(file_dir):
+            os.makedirs(file_dir)
+
+        try:
+            json_data = json.loads(request.data.decode('utf-8'))  # Parse JSON data
+        except json.JSONDecodeError:
+            return jsonify({'status': 'invalid json'}), 400
+
+        with open(f'{file_dir}/{file_name}.log', 'w') as file:  # pylint:disable=unspecified-encoding
+            json.dump(json_data, file, indent=4)  # Write formatted JSON to file
+
+        return jsonify({'status': 'ok', 'id': file_name}), 200
+    return jsonify({'status': 'not found'}), 404
